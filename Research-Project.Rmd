@@ -1,0 +1,80 @@
+---
+title: "Research-Project"
+author: "Nathan Dennis"
+date: "11/27/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(survival)
+library(survminer)
+library(tidyverse)
+library(tidymodels)
+library(broom)
+library(janitor)
+library(ggridges)
+library(corrplot)
+library(readxl)
+library(flexsurv)
+library(eha)
+data <- read_excel('sim_vac_data.xlsx')
+
+
+```
+
+This code creates the results to be discussed and/or displayed on the slideshow. Not all or much explanation will be displayed here, but rather the code. More explanation will be in the slideshow and write up.
+
+```{r}
+
+data <- as.data.frame(data)
+names(data) <- c('obs_time', 'event', 'arm')
+data$obs_time = as.numeric(data$obs_time)
+data$event = as.numeric(data$event)
+data$arm = as.numeric(data$arm)
+summary(data)
+
+```
+
+
+```{r}
+vac <- Surv(data$obs_time, data$event==1)
+kmfit1=survfit(Surv(data$obs_time, data$event==1)~data$arm)
+plot(kmfit1, lty = c('solid', 'dashed'), col=c('black','grey'), 
+     xlab='survival time in days',ylab='survival probabilities',
+     main='Probability of COVID-19 Infection', ylim=c(.95, 1))
+
+legend('bottomleft', c('Placebo','Treatment'), lty=c('solid','dashed'),
+col=c('black','grey'))
+
+```
+We can calculate some extra results below:
+```{r logrank}
+
+survdiff(Surv(data$obs_time, data$event)~data$arm)
+
+```
+
+```{r}
+
+plot(kmfit1,fun='cloglog',xlab='time in days using logarithmic scale',
+     ylab='log-log survival', main='log-log curves by clinic')
+
+```
+Cox-PH Results:
+```{r}
+
+mod_cox = coxph(Surv(obs_time,event) ~ arm, data=data)
+summary(mod_cox)
+cox.zph(mod_cox)
+
+```
+
+```{r}
+mod_weibull = phreg(Surv(obs_time,event) ~ arm, data=data)
+#summary(mod_weibull)
+mod_exp = phreg(Surv(obs_time,event) ~ arm, data=data)
+#summary(mod_exp)
+```
+
+
