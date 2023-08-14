@@ -1,5 +1,5 @@
 # Research-Project
-Individual undergrad research done through UW for credits.
+Undergrad research done through UW for credits in the Statistics Deparment's Directed Reading Program.
 
 Research-Project.Rmd has some of the R code used to create the results. No specific analysis done there, but in write up.
 
